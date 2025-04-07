@@ -1,5 +1,5 @@
-# Ignore build artifacts
-/target/
+# Ignore all target folders recursively
+**/target/
 
-# Ignore Cargo.lock for libraries (optional)
-/Cargo.lock
+# Optional: Ignore Cargo.lock in sub-crates (usually for libraries)
+**/Cargo.lock
