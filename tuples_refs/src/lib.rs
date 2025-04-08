@@ -1,3 +1,6 @@
+#[derive(Debug)]
+pub struct Student(pub u32, pub String, pub String);
+
 pub fn id(student: &Student) -> u32 {
     student.0
 }
