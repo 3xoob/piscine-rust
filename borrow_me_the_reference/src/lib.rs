@@ -1,18 +1,22 @@
 pub fn delete_and_backspace(s: &mut String) {
-    let mut stack = Vec::new();
+    let mut result = String::new();
+    let mut chars = s.chars().peekable();
 
-    for ch in s.chars() {
+    while let Some(ch) = chars.next() {
         match ch {
-            '-' | '+' => {
-                stack.pop();
+            '-' => {
+                result.pop();
+            }
+            '+' => {
+                chars.next();
             }
             _ => {
-                stack.push(ch);
+                result.push(ch);
             }
         }
     }
 
-    *s = stack.into_iter().collect();
+    *s = result;
 }
 
 pub fn do_operations(v: &mut [String]) {
