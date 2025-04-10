@@ -26,4 +26,24 @@ pub fn delete_and_backspace(s: &mut String) {
     *s = chars.into_iter().collect();
 }
 
-pub fn do_operations(v: &mut [String]) {}
+pub fn do_operations(v: &mut Vec<String>) {
+    for element in v.iter_mut() {
+        let operator_index = element.chars().position(|c| c == '+' || c == '-');
+        if let Some(i) = operator_index {
+            let operator = element.chars().nth(i);
+            let (left, right) = element.split_at(i);
+            let x = left.trim().parse::<i32>().expect("invalid number");
+            let y = right.trim().parse::<i32>().expect("invalid number");
+            if let Some(o) = operator {
+                match o {
+                    '+' => *element = (x + y).to_string(),
+                    '-' => {
+                        let y = -y;
+                        *element = (x - y).to_string()
+                    }
+                    _ => println!("{} is not a valid operator!!", o),
+                }
+            }
+        }
+    }
+}
