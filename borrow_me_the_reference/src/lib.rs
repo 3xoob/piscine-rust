@@ -1,49 +1,48 @@
 pub fn delete_and_backspace(s: &mut String) {
-    let mut chars: Vec<char> = s.chars().collect();
-    let mut i = chars.len();
-    while i > 0 {
-        i -= 1;
-        if chars[i] == '+' {
-            chars.remove(i);
-            if i < chars.len() {
-                chars.remove(i);
-            }
-        }
-    }
-    i = 0;
-    while i < chars.len() {
-        if chars[i] == '-' {
-            if i > 0 {
-                chars.remove(i - 1);
-                i -= 1;
-            }
-            chars.remove(i);
-        } else {
-            i += 1;
-        }
-    }
+    let mut result = String::new();
+    let mut skip_next = false;
 
-    *s = chars.into_iter().collect();
-}
+    for (i, c) in s.chars().enumerate() {
+        if skip_next {
+            skip_next = false;
+            continue;
+        }
 
-pub fn do_operations(v: &mut Vec<String>) {
-    for element in v.iter_mut() {
-        let operator_index = element.chars().position(|c| c == '+' || c == '-');
-        if let Some(i) = operator_index {
-            let operator = element.chars().nth(i);
-            let (left, right) = element.split_at(i);
-            let x = left.trim().parse::<i32>().expect("invalid number");
-            let y = right.trim().parse::<i32>().expect("invalid number");
-            if let Some(o) = operator {
-                match o {
-                    '+' => *element = (x + y).to_string(),
-                    '-' => {
-                        let y = -y;
-                        *element = (x - y).to_string()
-                    }
-                    _ => println!("{} is not a valid operator!!", o),
+        match c {
+            '-' => {
+                if !result.is_empty() {
+                    result.pop();
                 }
             }
+            '+' => {
+                skip_next = true;
+            }
+            _ => {
+                result.push(c);
+            }
         }
+    }
+
+    *s = result;
+}
+
+pub fn do_operations(v: &mut [String]) {
+    for item in v.iter_mut() {
+        let parts: Vec<&str> = item.split(|c| c == '+' || c == '-').collect();
+        if parts.len() != 2 {
+            continue;
+        }
+
+        let num1: i32 = parts[0].trim().parse().unwrap_or(0);
+        let num2: i32 = parts[1].trim().parse().unwrap_or(0);
+
+        let operation = item.chars().find(|&c| c == '+' || c == '-').unwrap();
+        let result = match operation {
+            '+' => num1 + num2,
+            '-' => num1 - num2,
+            _ => unreachable!(),
+        };
+
+        *item = result.to_string();
     }
 }
