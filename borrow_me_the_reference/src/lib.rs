@@ -26,24 +26,18 @@ pub fn delete_and_backspace(s: &mut String) {
     *s = chars.into_iter().collect();
 }
 
-pub fn do_operations(v: &mut Vec<String>) {
-    for element in v.iter_mut() {
-        let operator_index = element.chars().position(|c| c == '+' || c == '-');
-        if let Some(i) = operator_index {
-            let operator = element.chars().nth(i);
-            let (left, right) = element.split_at(i);
-            let x = left.trim().parse::<i32>().expect("invalid number");
-            let y = right.trim().parse::<i32>().expect("invalid number");
-            if let Some(o) = operator {
-                match o {
-                    '+' => *element = (x + y).to_string(),
-                    '-' => {
-                        let y = -y;
-                        *element = (x - y).to_string()
-                    }
-                    _ => println!("{} is not a valid operator!!", o),
-                }
-            }
+pub fn do_operations(v: &mut [String]) {
+    for i in 0..v.len() {
+        if v[i].contains('+') {
+            let operands: Vec<&str> = v[i].split('+').collect();
+            let num1: i32 = operands[0].trim().parse().unwrap();
+            let num2: i32 = operands[1].trim().parse().unwrap();
+            v[i] = (num1 + num2).to_string();
+        } else if v[i].contains('-') {
+            let operands: Vec<&str> = v[i].split('-').collect();
+            let num1: i32 = operands[0].trim().parse().unwrap();
+            let num2: i32 = operands[1].trim().parse().unwrap();
+            v[i] = (num1 - num2).to_string();
         }
     }
 }
