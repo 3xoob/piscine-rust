@@ -1,19 +1,18 @@
 pub fn arrange_phrase(phrase: &str) -> String {
-    let mut words: Vec<_> = phrase
-        .split_whitespace()
-        .map(|word| {
-            let position = word
-                .chars()
-                .filter_map(|c| c.to_digit(10))
-                .next()
-                .unwrap_or(0);
-            (position, word)
-        })
-        .collect();
-    words.sort_by_key(|&(position, _)| position);
+    let mut words: Vec<&str> = phrase.split_whitespace().collect();
+
+    words.sort_by_key(|word| {
+        word.chars()
+            .find(|c| c.is_digit(10))
+            .and_then(|c| c.to_digit(10))
+            .unwrap_or(0)
+    });
     words
-        .into_iter()
-        .map(|(_, word)| word)
-        .collect::<Vec<_>>()
+        .iter()
+        .map(|&word| {
+            let removed = word.chars().filter(|c| c.is_alphabetic()).collect();
+            removed
+        })
+        .collect::<Vec<String>>()
         .join(" ")
 }
