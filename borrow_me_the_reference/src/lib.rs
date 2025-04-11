@@ -1,34 +1,49 @@
 pub fn delete_and_backspace(s: &mut String) {
-    let mut result = String::new();
-    let mut chars = s.chars().peekable();
-
-    while let Some(ch) = chars.next() {
-        match ch {
-            '-' => {
-                result.pop();
-            }
-            '+' => {
-                chars.next();
-            }
-            _ => {
-                result.push(ch);
+    let mut chars: Vec<char> = s.chars().collect();
+    let mut i = chars.len();
+    while i > 0 {
+        i -= 1;
+        if chars[i] == '+' {
+            chars.remove(i);
+            if i < chars.len() {
+                chars.remove(i);
             }
         }
     }
+    i = 0;
+    while i < chars.len() {
+        if chars[i] == '-' {
+            if i > 0 {
+                chars.remove(i - 1);
+                i -= 1;
+            }
+            chars.remove(i);
+        } else {
+            i += 1;
+        }
+    }
 
-    *s = result;
+    *s = chars.into_iter().collect();
 }
 
-pub fn do_operations(v: &mut [String]) {
-    for expr in v {
-        if let Some(idx) = expr.find('+') {
-            let left = expr[..idx].trim().parse::<i32>().unwrap();
-            let right = expr[idx + 1..].trim().parse::<i32>().unwrap();
-            *expr = (left + right).to_string();
-        } else if let Some(idx) = expr.find('-') {
-            let left = expr[..idx].trim().parse::<i32>().unwrap();
-            let right = expr[idx + 1..].trim().parse::<i32>().unwrap();
-            *expr = (left - right).to_string();
+pub fn do_operations(v: &mut Vec<String>) {
+    for element in v.iter_mut() {
+        let operator_index = element.chars().position(|c| c == '+' || c == '-');
+        if let Some(i) = operator_index {
+            let operator = element.chars().nth(i);
+            let (left, right) = element.split_at(i);
+            let x = left.trim().parse::<i32>().expect("invalid number");
+            let y = right.trim().parse::<i32>().expect("invalid number");
+            if let Some(o) = operator {
+                match o {
+                    '+' => *element = (x + y).to_string(),
+                    '-' => {
+                        let y = -y;
+                        *element = (x - y).to_string()
+                    }
+                    _ => println!("{} is not a valid operator!!", o),
+                }
+            }
         }
     }
 }
