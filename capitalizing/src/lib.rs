@@ -1,29 +1,30 @@
 pub fn capitalize_first(input: &str) -> String {
-    let mut chars = input.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    if let Some(first) = input.chars().next() {
+        let c = first.to_ascii_uppercase().to_string();
+        let r = input
+            .chars()
+            .skip(1)
+            .collect::<String>()
+            .to_ascii_lowercase();
+        return format!("{}{}", c, r);
     }
+    String::new()
 }
-
 pub fn title_case(input: &str) -> String {
     input
         .split_whitespace()
-        .map(capitalize_first)
-        .collect::<Vec<_>>()
+        .map(|s| capitalize_first(s))
+        .collect::<Vec<String>>()
         .join(" ")
 }
-
 pub fn change_case(input: &str) -> String {
     input
         .chars()
-        .map(|c| {
-            if c.is_uppercase() {
-                c.to_lowercase().collect::<String>()
-            } else if c.is_lowercase() {
-                c.to_uppercase().collect::<String>()
+        .map(|s| {
+            if s.is_ascii_uppercase() {
+                s.to_ascii_lowercase()
             } else {
-                c.to_string()
+                s.to_ascii_uppercase()
             }
         })
         .collect()
