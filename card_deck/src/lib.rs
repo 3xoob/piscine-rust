@@ -70,3 +70,70 @@ pub struct Card {
 pub fn winner_card(card: Card) -> bool {
     matches!((card.suit, card.rank), (Suit::Spade, Rank::Ace))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_translate_suit() {
+        assert_eq!(Suit::translate(1), Suit::Heart);
+        assert_eq!(Suit::translate(2), Suit::Diamond);
+        assert_eq!(Suit::translate(3), Suit::Spade);
+        assert_eq!(Suit::translate(4), Suit::Club);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid suit value")]
+    fn test_translate_suit_invalid() {
+        Suit::translate(0); // should panic
+    }
+
+    #[test]
+    fn test_translate_rank() {
+        assert_eq!(Rank::translate(1), Rank::Ace);
+        assert_eq!(Rank::translate(5), Rank::Number(5));
+        assert_eq!(Rank::translate(11), Rank::Jack);
+        assert_eq!(Rank::translate(12), Rank::Queen);
+        assert_eq!(Rank::translate(13), Rank::King);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid rank value")]
+    fn test_translate_rank_invalid() {
+        Rank::translate(14); // should panic
+    }
+
+    #[test]
+    fn test_winner_card_true() {
+        let card = Card {
+            suit: Suit::Spade,
+            rank: Rank::Ace,
+        };
+        assert!(winner_card(card));
+    }
+
+    #[test]
+    fn test_winner_card_false() {
+        let card = Card {
+            suit: Suit::Heart,
+            rank: Rank::Ace,
+        };
+        assert!(!winner_card(card));
+    }
+
+    #[test]
+    fn test_random_suit_is_valid() {
+        let suit = Suit::random();
+        matches!(suit, Suit::Heart | Suit::Diamond | Suit::Spade | Suit::Club);
+    }
+
+    #[test]
+    fn test_random_rank_is_valid() {
+        let rank = Rank::random();
+        matches!(
+            rank,
+            Rank::Ace | Rank::Jack | Rank::Queen | Rank::King | Rank::Number(_)
+        );
+    }
+}
