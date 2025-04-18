@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub enum Security {
     Unknown,
     Message,
@@ -7,15 +8,17 @@ pub enum Security {
 }
 
 pub fn fetch_data(server: Result<&str, &str>, security_level: Security) -> String {
-    match (server, security_level) {
-        (Ok(url), _) => match security_level {
+    match server {
+        Ok(url) => match security_level {
             Security::UnexpectedUrl => panic!("{}", url),
             _ => url.to_string(),
         },
-        (Err(err), Security::Unknown) => panic!(),
-        (Err(_), Security::Message) => panic!("ERROR: program stops"),
-        (Err(_), Security::Warning) => "WARNING: check the server".to_string(),
-        (Err(err), Security::NotFound) => format!("Not found: {}", err),
-        (Err(err), Security::UnexpectedUrl) => err.to_string(),
+        Err(err) => match security_level {
+            Security::Unknown => panic!(),
+            Security::Message => panic!("ERROR: program stops"),
+            Security::Warning => "WARNING: check the server".to_string(),
+            Security::NotFound => format!("Not found: {}", err),
+            Security::UnexpectedUrl => err.to_string(),
+        },
     }
 }
