@@ -1,17 +1,21 @@
 pub enum Security {
     Unknown,
-    High,
-    Medium,
-    Low,
-    BlockServer,
+    Message,
+    Warning,
+    NotFound,
+    UnexpectedUrl,
 }
 
-pub fn fetch_data(server: Result<String, String>, security_level: Security) -> String {
-    match security_level {
-        Security::Unknown => server.unwrap(),
-        Security::High => server.expect("ERROR: program stops"),
-        Security::Medium => server.unwrap_or("WARNING: check the server".to_string()),
-        Security::Low => server.unwrap_or_else(|err| format!("Not found: {}", err)),
-        Security::BlockServer => server.unwrap_err(),
+pub fn fetch_data(server: Result<&str, &str>, security_level: Security) -> String {
+    match (server, security_level) {
+        (Ok(url), _) => match security_level {
+            Security::UnexpectedUrl => panic!("{}", url),
+            _ => url.to_string(),
+        },
+        (Err(err), Security::Unknown) => panic!(),
+        (Err(_), Security::Message) => panic!("ERROR: program stops"),
+        (Err(_), Security::Warning) => "WARNING: check the server".to_string(),
+        (Err(err), Security::NotFound) => format!("Not found: {}", err),
+        (Err(err), Security::UnexpectedUrl) => err.to_string(),
     }
 }
