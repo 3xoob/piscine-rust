@@ -1,3 +1,5 @@
+use chrono::Utc;
+
 #[derive(Debug, Eq, PartialEq)]
 pub struct FormError {
     pub form_values: (&'static str, String),
@@ -7,11 +9,9 @@ pub struct FormError {
 
 impl FormError {
     pub fn new(field_name: &'static str, field_value: String, err: &'static str) -> Self {
-        let date_str = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
-
-        FormError {
+        Self {
             form_values: (field_name, field_value),
-            date: date_str,
+            date: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
             err,
         }
     }
@@ -45,14 +45,10 @@ impl Form {
             ));
         }
 
-        let has_letter = self.password.chars().any(|c| c.is_ascii_alphabetic());
-        let has_number = self.password.chars().any(|c| c.is_ascii_digit());
-        let has_symbol = self
-            .password
-            .chars()
-            .any(|c| c.is_ascii() && !c.is_ascii_alphanumeric());
+        let has_alphanumeric = self.password.chars().any(|c| c.is_ascii_alphanumeric());
+        let has_symbol = self.password.chars().any(|c| !c.is_ascii_alphanumeric());
 
-        if !(has_letter && has_number && has_symbol) {
+        if !has_alphanumeric || !has_symbol {
             return Err(FormError::new(
                 "password",
                 self.password.clone(),
