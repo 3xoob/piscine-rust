@@ -1,43 +1,29 @@
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct CipherError {
-    pub validation: bool,
     pub expected: String,
 }
 
-impl CipherError {
-    pub fn new(validation: bool, expected: String) -> CipherError {
-        CipherError {
-            validation,
-            expected,
-        }
-    }
-}
-
-pub fn cipher(original: &str, ciphered: &str) -> Option<Result<bool, CipherError>> {
-    if original.is_empty() || ciphered.is_empty() {
-        return None;
-    }
-
-    let expected = atbash_cipher(original);
-
-    if expected == ciphered {
-        Some(Ok(true))
-    } else {
-        Some(Err(CipherError::new(false, expected)))
-    }
-}
-
-fn atbash_cipher(text: &str) -> String {
-    text.chars()
+pub fn cipher(original: &str, ciphered: &str) -> Result<(), CipherError> {
+    let expected_cipher = original
+        .chars()
         .map(|c| {
             if c.is_ascii_alphabetic() {
-                let base = if c.is_ascii_lowercase() { b'a' } else { b'A' };
-                let b = if c.is_ascii_lowercase() { b'z' } else { b'Z' };
-                let mirrored = (base + (b - c as u8)) as char;
-                mirrored
+                if c.is_ascii_lowercase() {
+                    char::from_u32(219 - c as u32).unwrap()
+                } else {
+                    char::from_u32(155 - c as u32).unwrap()
+                }
             } else {
                 c
             }
         })
-        .collect()
+        .collect::<String>();
+
+    if expected_cipher == ciphered {
+        Ok(())
+    } else {
+        Err(CipherError {
+            expected: expected_cipher,
+        })
+    }
 }
