@@ -1,5 +1,3 @@
-use chrono::Utc;
-
 #[derive(Debug, Eq, PartialEq)]
 pub struct FormError {
     pub form_values: (&'static str, String),
@@ -9,7 +7,7 @@ pub struct FormError {
 
 impl FormError {
     pub fn new(field_name: &'static str, field_value: String, err: &'static str) -> Self {
-        let date_str = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+        let date_str = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
         FormError {
             form_values: (field_name, field_value),
