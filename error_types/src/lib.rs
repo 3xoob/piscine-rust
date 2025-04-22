@@ -72,3 +72,5 @@ impl Form {
         Ok(["Valid first name", "Valid password"].to_vec())
     }
 }
+
+
