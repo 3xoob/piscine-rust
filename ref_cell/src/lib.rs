@@ -12,7 +12,7 @@ pub struct Worker {
 }
 
 impl Worker {
-    pub fn new(max: u32) -> Self {
+    pub fn new(_max: u32) -> Self {
         Worker {
             track_value: Rc::new(RefCell::new(0)),
             mapped_messages: RefCell::new(HashMap::new()),
