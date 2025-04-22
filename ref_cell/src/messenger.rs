@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::rc::Rc;
 
 pub trait Logger {
@@ -6,36 +7,44 @@ pub trait Logger {
     fn error(&self, msg: &str);
 }
 
-pub struct Tracker<'a> {
-    logger: &'a dyn Logger,
-    pub max: usize,
+#[derive(Debug)]
+pub struct Tracker<L> {
+    logger: L,
+    value: Rc<RefCell<u32>>,
+    max: u32,
 }
 
-impl<'a> Tracker<'a> {
-    pub fn new(logger: &'a dyn Logger, max: usize) -> Self {
-        Tracker { logger, max }
+impl<L> Tracker<L>
+where
+    L: Logger,
+{
+    pub fn new(logger: L, max: u32) -> Self {
+        Tracker {
+            logger,
+            value: Rc::new(RefCell::new(0)),
+            max,
+        }
     }
 
-    pub fn set_value(&self, value: &Rc<String>) {
-        let count = Rc::strong_count(value);
-        let percentage = (count * 100) / self.max;
+    pub fn set_value(&self, value: &Rc<RefCell<u32>>) {
+        let current_value = *value.borrow();
+        let percentage = (current_value as f32 / self.max as f32) * 100.0;
 
-        if count >= self.max {
-            self.logger.error("Error: you are over your quota!");
-        } else if percentage >= 70 {
+        if percentage >= 100.0 {
+            self.logger.error("you are over your quota!");
+        } else if percentage >= 70.0 {
             self.logger.warning(&format!(
-                "Warning: you have used up over {}% of your quota! Proceeds with precaution",
+                "you have used up over {:.0}% of your quota! Proceeds with precaution",
                 percentage
             ));
         }
     }
 
-    pub fn peek(&self, value: &Rc<String>) {
-        let count = Rc::strong_count(value);
-        let percentage = (count * 100) / self.max;
-
+    pub fn peek(&self, value: &Rc<RefCell<u32>>) {
+        let current_value = *value.borrow();
+        let percentage = (current_value as f32 / self.max as f32) * 100.0;
         self.logger.info(&format!(
-            "Info: you are using up to {}% of your quota",
+            "you are using up to {:.0}% of your quota",
             percentage
         ));
     }
