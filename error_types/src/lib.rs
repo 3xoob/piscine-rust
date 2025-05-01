@@ -25,44 +25,45 @@ pub struct Form {
 
 impl Form {
     pub fn validate(&self) -> Result<(), FormError> {
+        // Check for empty username
         if self.name == "" {
-            return Err(FormError {
-                form_values: ("name", self.name.clone()),
-                err: "Username is empty",
-                date: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
-            });
+            return Err(FormError::new(
+                "name",
+                self.name.clone(),
+                "Username is empty",
+            ));
         }
 
+        // Check password length
         if self.password.chars().count() < 8 {
-            return Err(FormError {
-                form_values: ("password", self.password.clone()),
-                date: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
-                err: "Password should be at least 8 characters long",
-            });
+            return Err(FormError::new(
+                "password",
+                self.password.clone(),
+                "Password should be at least 8 characters long",
+            ));
         }
 
+        // Check password composition
         let mut is_letter = false;
         let mut is_digit = false;
         let mut is_symbol = false;
 
-        for char in self.password.chars() {
-            if char.is_digit(10) {
-                is_digit = true;
-            }
-            if char.is_alphabetic() {
+        for c in self.password.chars() {
+            if c.is_alphabetic() {
                 is_letter = true;
-            }
-            if !char.is_alphanumeric() && !char.is_whitespace() {
+            } else if c.is_digit(10) {
+                is_digit = true;
+            } else if !c.is_whitespace() {
                 is_symbol = true;
             }
         }
 
         if !is_digit || !is_letter || !is_symbol {
-            return Err(FormError {
-                form_values: ("password", self.password.clone()),
-                date: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
-                err: "Password should be a combination of ASCII numbers, letters and symbols",
-            });
+            return Err(FormError::new(
+                "password",
+                self.password.clone(),
+                "Password should be a combination of ASCII numbers, letters and symbols",
+            ));
         }
 
         Ok(())
