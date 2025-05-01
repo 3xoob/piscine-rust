@@ -1,8 +1,26 @@
-pub use lalgebra_scalar::Scalar;
+use lalgebra_scalar::Scalar;
 use std::ops::Mul;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Matrix<T>(pub Vec<Vec<T>>);
+
+impl<T: Scalar<Item = T> + Clone> Matrix<T> {
+    pub fn new() -> Matrix<T> {
+        Matrix(vec![vec![T::zero(); 1]; 1])
+    }
+
+    pub fn zero(row: usize, col: usize) -> Matrix<T> {
+        Matrix(vec![vec![T::zero(); col]; row])
+    }
+
+    pub fn identity(n: usize) -> Matrix<T> {
+        let mut m = Matrix::zero(n, n);
+        for i in 0..n {
+            m.0[i][i] = T::one();
+        }
+        m
+    }
+}
 
 impl<T: Clone> Matrix<T> {
     pub fn number_of_cols(&self) -> usize {
@@ -19,7 +37,6 @@ impl<T: Clone> Matrix<T> {
 
     pub fn col(&self, n: usize) -> Vec<T> {
         let mut col = Vec::new();
-
         for i in 0..self.0.len() {
             col.push(self.0[i][n].clone());
         }
