@@ -1,6 +1,6 @@
-pub use chrono::{Utc, NaiveDate, DateTime};
+use chrono::Local;
+pub use chrono::{NaiveDate, Utc};
 
-// this will be the structure that wil handle the errors
 #[derive(Debug, Eq, PartialEq)]
 pub struct FormError {
     pub form_values: (String, String),
@@ -9,10 +9,9 @@ pub struct FormError {
 }
 impl FormError {
     pub fn new(field_name: String, field_value: String, err: String) -> FormError {
-        let date: DateTime<Utc> = Utc::now();
         FormError {
             form_values: (field_name, field_value),
-            date: date.format("%Y-%m-%d %H:%M:%S").to_string(),
+            date: Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
             err,
         }
     }
@@ -43,24 +42,19 @@ impl Form {
             password,
         }
     }
-    
-    pub fn validate(&self) -> Result<Vec<&str>, FormError> {
-        let mut messages = Vec::new();
 
+    pub fn validate(&self) -> Result<Vec<&str>, FormError> {
         if self.first_name.is_empty() {
             return Err(FormError::new(
                 "first_name".to_string(),
-                self.first_name.clone(),
+                self.first_name.to_string(),
                 "No user name".to_string(),
             ));
-        } else {
-            messages.push("Valid first name");
         }
-
         if self.password.len() < 8 {
             return Err(FormError::new(
                 "password".to_string(),
-                self.password.clone(),
+                self.password.to_string(),
                 "At least 8 characters".to_string(),
             ));
         }
@@ -68,22 +62,13 @@ impl Form {
         let has_alphabetic = self.password.chars().any(|c| c.is_alphabetic());
         let has_numeric = self.password.chars().any(|c| c.is_numeric());
         let has_non_alphanumeric = self.password.chars().any(|c| !c.is_alphanumeric());
-
-        if !has_alphabetic || !has_numeric || !has_non_alphanumeric {
+        if !has_alphabetic || !has_non_alphanumeric || !has_numeric {
             return Err(FormError::new(
                 "password".to_string(),
-                self.password.clone(),
+                self.password.to_string(),
                 "Combination of different ASCII character types (numbers, letters and none alphanumeric characters)".to_string(),
             ));
-        }else {
-            messages.push("Valid password");
         }
-
-        Ok(messages)
+        Ok(["Valid first name", "Valid password"].to_vec())
     }
-}
-
-
-pub fn create_date(date_str: &str) -> NaiveDate {
-    NaiveDate::parse_from_str(date_str, "%Y-%m-%d").expect("Invalid date format")
 }
