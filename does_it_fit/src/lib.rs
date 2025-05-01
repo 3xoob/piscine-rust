@@ -1,40 +1,41 @@
 mod areas_volumes;
-use areas_volumes::{GeometricalShapes, GeometricalVolumes};
+
+pub use crate::areas_volumes::{GeometricalShapes, GeometricalVolumes, square_area, rectangle_area, triangle_area, circle_area, cube_volume, sphere_volume, cone_volume, triangular_pyramid_volume, parallelepiped_volume};
 
 pub fn area_fit(
-    (x, y): (usize, usize),
-    kind: GeometricalShapes,
-    times: usize,
-    (a, b): (usize, usize),
+	x: usize,
+	y: usize,
+	objects: areas_volumes::GeometricalShapes,
+	times: usize,
+	a: usize,
+	b: usize,
 ) -> bool {
-    let area_available = x * y;
-    let area_needed = match kind {
-        GeometricalShapes::Square => areas_volumes::square_area(a) as f64,
-        GeometricalShapes::Rectangle => areas_volumes::rectangle_area(a, b) as f64,
-        GeometricalShapes::Triangle => areas_volumes::triangle_area(a, b),
-        GeometricalShapes::Circle => areas_volumes::circle_area(a),
+    let area = x * y;
+    let shape_area = match objects {
+        GeometricalShapes::Square => areas_volumes::square_area(a),
+        GeometricalShapes::Rectangle => areas_volumes::rectangle_area(a, b),
+        GeometricalShapes::Triangle => areas_volumes::triangle_area(a, b) as usize,
+        GeometricalShapes::Circle => areas_volumes::circle_area(a) as usize,
     };
-
-    area_needed * times as f64 <= area_available as f64
+    area >= shape_area * times
 }
-
 pub fn volume_fit(
-    (x, y, z): (usize, usize, usize),
-    kind: GeometricalVolumes,
-    times: usize,
-    (a, b, c): (usize, usize, usize),
+	x: usize,
+	y: usize,
+	z: usize,
+	objects: areas_volumes::GeometricalVolumes,
+	times: usize,
+	a: usize,
+	b: usize,
+	c: usize,
 ) -> bool {
-    let volume_available = (x * y * z) as f64;
-    let volume_needed = match kind {
-        GeometricalVolumes::Cube => areas_volumes::cube_volume(a) as f64,
-        GeometricalVolumes::Sphere => areas_volumes::sphere_volume(a),
-        GeometricalVolumes::TriangularPyramid => {
-            let base_area = a as f64; // base_area is passed directly
-            areas_volumes::triangular_pyramid_volume(base_area, b)
-        }
-        GeometricalVolumes::Parallelepiped => areas_volumes::parallelepiped_volume(a, b, c) as f64,
-        GeometricalVolumes::Cone => areas_volumes::cone_volume(a, b),
+    let volume = x * y * z;
+    let shape_volume = match objects {
+        GeometricalVolumes::Cube => areas_volumes::cube_volume(a),
+        GeometricalVolumes::Sphere => areas_volumes::sphere_volume(a) as usize,
+        GeometricalVolumes::Cone => areas_volumes::cone_volume(a, b) as usize,
+        GeometricalVolumes::Pyramid => areas_volumes::triangular_pyramid_volume(a as f64, b) as usize,
+        GeometricalVolumes::Parallelepiped => areas_volumes::parallelepiped_volume(a, b, c),
     };
-
-    volume_needed * times as f64 <= volume_available
+    volume >= shape_volume * times
 }
