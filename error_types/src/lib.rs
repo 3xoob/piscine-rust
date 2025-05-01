@@ -1,4 +1,4 @@
-use chrono::prelude::*;
+use chrono::Utc::*;
 
 // this will be the structure that wil handle the errors
 #[derive(Debug, Eq, PartialEq)]
