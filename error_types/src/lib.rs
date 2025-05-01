@@ -1,18 +1,18 @@
-use chrono::Local;
-pub use chrono::{NaiveDate, Utc};
+pub use chrono::{Utc, NaiveDate, DateTime};
 
+// this will be the structure that wil handle the errors
 #[derive(Debug, Eq, PartialEq)]
 pub struct FormError {
-    pub form_values: (&'static str, String),
+    pub form_values: (String, String),
     pub date: String,
-    pub err: &'static str,
+    pub err: String,
 }
-
 impl FormError {
-    pub fn new(field_name: &'static str, field_value: String, err: &'static str) -> FormError {
+    pub fn new(field_name: String, field_value: String, err: String) -> FormError {
+        let date: DateTime<Utc> = Utc::now();
         FormError {
             form_values: (field_name, field_value),
-            date: Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
+            date: date.format("%Y-%m-%d %H:%M:%S").to_string(),
             err,
         }
     }
@@ -20,39 +20,70 @@ impl FormError {
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Form {
-    pub name: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub birth: NaiveDate,
+    pub birth_location: String,
     pub password: String,
 }
 
 impl Form {
-    pub fn validate(&self) -> Result<(), FormError> {
-        if self.name.is_empty() {
+    pub fn new(
+        first_name: String,
+        last_name: String,
+        birth: NaiveDate,
+        birth_location: String,
+        password: String,
+    ) -> Form {
+        Form {
+            first_name,
+            last_name,
+            birth,
+            birth_location,
+            password,
+        }
+    }
+    
+    pub fn validate(&self) -> Result<Vec<&str>, FormError> {
+        let mut messages = Vec::new();
+
+        if self.first_name.is_empty() {
             return Err(FormError::new(
-                "name",
-                self.name.clone(),
-                "Username is empty",
+                "first_name".to_string(),
+                self.first_name.clone(),
+                "No user name".to_string(),
             ));
+        } else {
+            messages.push("Valid first name");
         }
 
         if self.password.len() < 8 {
             return Err(FormError::new(
-                "password",
+                "password".to_string(),
                 self.password.clone(),
-                "Password should be at least 8 characters long",
+                "At least 8 characters".to_string(),
             ));
         }
 
-        let has_alphanumeric = self.password.chars().any(|c| c.is_ascii_alphanumeric());
-        let has_symbol = self.password.chars().any(|c| !c.is_ascii_alphanumeric());
+        let has_alphabetic = self.password.chars().any(|c| c.is_alphabetic());
+        let has_numeric = self.password.chars().any(|c| c.is_numeric());
+        let has_non_alphanumeric = self.password.chars().any(|c| !c.is_alphanumeric());
 
-        if !has_alphanumeric || !has_symbol {
+        if !has_alphabetic || !has_numeric || !has_non_alphanumeric {
             return Err(FormError::new(
-                "password",
+                "password".to_string(),
                 self.password.clone(),
-                "Password should be a combination of ASCII numbers, letters and symbols",
+                "Combination of different ASCII character types (numbers, letters and none alphanumeric characters)".to_string(),
             ));
+        }else {
+            messages.push("Valid password");
         }
 
-        Ok(())
+        Ok(messages)
     }
+}
+
+
+pub fn create_date(date_str: &str) -> NaiveDate {
+    NaiveDate::parse_from_str(date_str, "%Y-%m-%d").expect("Invalid date format")
 }
