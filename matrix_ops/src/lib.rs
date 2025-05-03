@@ -1,4 +1,6 @@
 
+pub use matrix::Matrix;
+
 pub trait Scalar:
 std::ops::Add<Output = Self>
 + std::ops::Sub<Output = Self>
