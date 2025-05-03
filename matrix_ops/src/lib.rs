@@ -1,50 +1,73 @@
-pub use lalgebra_scalar::Scalar;
 
-use std::ops::Add;
-use std::ops::Sub;
+pub trait Scalar:
+std::ops::Add<Output = Self>
++ std::ops::Sub<Output = Self>
++ std::ops::Mul<Output = Self>
++ std::ops::Div<Output = Self>
++ std::clone::Clone
++ Sized
+{
+    type Item;
+    fn zero() -> Self::Item;
+    fn one() -> Self::Item;
+}
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Matrix<T>(pub Vec<Vec<T>>);
-
-impl<T: Clone + std::ops::Add<Output = T>> Add for Matrix<T> {
-    type Output = Option<Matrix<T>>;
-
-    fn add(self, other: Matrix<T>) -> Option<Matrix<T>> {
-        if self.0.len() != other.0.len() || self.0[0].len() != other.0[0].len() {
-            return None; // Matrices have different dimensions, cannot be added
-        }
-
-        let mut result = Vec::new();
-
-        for i in 0..self.0.len() {
-            let mut row = Vec::new();
-
-            for j in 0..self.0[i].len() {
-                let sum = self.0[i][j].clone() + other.0[i][j].clone();
-                row.push(sum);
-            }
-            result.push(row);
-        }
-        Some(Matrix(result))
+impl Scalar for u32 {
+    type Item = u32;
+    fn zero() -> Self::Item {
+        0
+    }
+    fn one() -> Self::Item {
+        1
     }
 }
 
-impl<T: Clone + std::ops::Sub<Output = T>> Sub for Matrix<T> {
-    type Output = Option<Matrix<T>>;
+impl Scalar for u64 {
+    type Item = u64;
+    fn zero() -> Self::Item {
+        0
+    }
+    fn one() -> Self::Item {
+        1
+    }
+}
 
-    fn sub(self, other: Matrix<T>) -> Option<Matrix<T>> {
-        if self.0.len() != other.0.len() || self.0[0].len() != other.0[0].len() {
-            return None;
-        }
-        let mut rslt = Vec::new();
-        for i in 0..self.0.len() {
-            let mut row = Vec::new();
-            for j in 0..self.0[i].len() {
-                let diff = self.0[i][j].clone() - other.0[i][j].clone();
-                row.push(diff);
-            }
-            rslt.push(row);
-        }
-        Some(Matrix(rslt))
+impl Scalar for i32 {
+    type Item = i32;
+    fn zero() -> Self::Item {
+        0
+    }
+    fn one() -> Self::Item {
+        1
+    }
+}
+
+impl Scalar for i64 {
+    type Item = i64;
+    fn zero() -> Self::Item {
+        0
+    }
+    fn one() -> Self::Item {
+        1
+    }
+}
+
+impl Scalar for f32 {
+    type Item = f32;
+    fn zero() -> Self::Item {
+        0.0
+    }
+    fn one() -> Self::Item {
+        1.0
+    }
+}
+
+impl Scalar for f64 {
+    type Item = f64;
+    fn zero() -> Self::Item {
+        0.0
+    }
+    fn one() -> Self::Item {
+        1.0
     }
 }
