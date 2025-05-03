@@ -1,6 +1,7 @@
-mod mall;
+pub mod mall;
 
 use std::collections::HashMap;
+use crate::mall::{Mall, Floor, Store, Employee, Guard};
 
 pub fn biggest_store(mall: mall::Mall) -> mall::Store {
     let mut biggest = mall::Store::new(HashMap::new(), 0);
