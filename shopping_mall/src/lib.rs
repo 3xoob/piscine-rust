@@ -1,9 +1,5 @@
 pub mod mall;
-pub use mall::floor::store;
-pub use mall::floor::store::employee::Employee;
-pub use mall::floor::store::Store;
-pub use mall::guard::Guard;
-pub use mall::*;
+pub use mall::{Employee, Floor, Guard, Mall, Store};
 
 pub fn biggest_store(mall: Mall) -> Store {
     mall.biggest_store().unwrap().clone()
@@ -26,20 +22,20 @@ pub fn cut_or_raise(mall: &mut Mall) {
 }
 
 impl Mall {
-    pub fn biggest_store(&self) -> Option<&store::Store> {
+    pub fn biggest_store(&self) -> Option<&Store> {
         self.floors
-            .iter()
-            .flat_map(|floor| &floor.stores)
+            .values()
+            .flat_map(|floor| floor.stores.values())
             .max_by_key(|store| store.square_meters)
     }
 
-    pub fn highest_paid_employee(&self) -> Vec<&store::employee::Employee> {
+    pub fn highest_paid_employee(&self) -> Vec<&Employee> {
         let mut highest_salary = 0.0;
         let mut highest_paid_employees = Vec::new();
 
-        for floor in &self.floors {
-            for store in &floor.stores {
-                for employee in &store.employees {
+        for floor in self.floors.values() {
+            for store in floor.stores.values() {
+                for employee in store.employees.values() {
                     if employee.salary > highest_salary {
                         highest_salary = employee.salary;
                         highest_paid_employees.clear();
@@ -57,8 +53,8 @@ impl Mall {
     pub fn nbr_of_employees(&self) -> usize {
         let mut count = self.guards.len();
 
-        for floor in &self.floors {
-            for store in &floor.stores {
+        for floor in self.floors.values() {
+            for store in floor.stores.values() {
                 count += store.employees.len();
             }
         }
@@ -66,21 +62,22 @@ impl Mall {
         count
     }
 
-    pub fn check_for_securities(&mut self, new_guards: Vec<guard::Guard>) {
-        let total_square_meters: u64 = self.floors.iter().map(|floor| floor.size_limit).sum();
+    pub fn check_for_securities(&mut self, new_guards: Vec<Guard>) {
+        let total_square_meters: u64 = self.floors.values().map(|floor| floor.size_limit).sum();
         let required_guards = (total_square_meters / 200) as usize;
 
         if self.guards.len() < required_guards {
             let additional_guards = required_guards - self.guards.len();
-            self.guards
-                .extend(new_guards.into_iter().take(additional_guards));
+            for guard in new_guards.into_iter().take(additional_guards) {
+                self.guards.insert(format!("Guard_{}", self.guards.len()), guard);
+            }
         }
     }
 
     pub fn cut_or_raise(&mut self) {
-        for floor in &mut self.floors {
-            for store in &mut floor.stores {
-                for employee in &mut store.employees {
+        for floor in self.floors.values_mut() {
+            for store in floor.stores.values_mut() {
+                for employee in store.employees.values_mut() {
                     if employee.working_hours.1 - employee.working_hours.0 > 10 {
                         employee.raise(employee.salary * 0.10);
                     } else {
