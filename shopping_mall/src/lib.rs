@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 pub fn biggest_store(mall: &mall::Mall) -> (String, mall::Store) {
     let mut biggest_name = String::new();
-    let mut biggest_store = mall::Store::new(HashMap::new(), 0);
+    let mut biggest_store = mall::Store::new(HashMap::<String, mall::Employee>::new(), 0);
 
     for (_floor_name, floor) in &mall.floors {
         for (store_name, store) in &floor.stores {
@@ -67,7 +67,7 @@ pub fn check_for_securities(mall: &mut mall::Mall, guards: HashMap<String, mall:
         }
     }
 
-    let required_guards = (mall_area + 199) / 200;
+    let required_guards: usize = ((mall_area + 199) / 200).try_into().unwrap();
     let current_guards = mall.guards.len();
 
     if current_guards < required_guards {
