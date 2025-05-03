@@ -1,4 +1,4 @@
-use json::JsonValue;
+use json;
 
 pub struct Food {
     pub name: String,
@@ -9,24 +9,27 @@ pub struct Food {
     pub nbr_of_portions: f64,
 }
 
-pub fn calculate_macros(foods: Vec<Food>) -> JsonValue {
-    let mut total_cals = 0.0;
-    let mut total_carbs = 0.0;
-    let mut total_proteins = 0.0;
-    let mut total_fats = 0.0;
+pub fn calculate_macros(foods: Vec<Food>) -> json::JsonValue {
+    let mut cals = 0.0;
+    let mut carbs = 0.0;
+    let mut proteins = 0.0;
+    let mut fats = 0.0;
 
     for food in foods {
-        let cals_per_portion: f64 = food.calories[1].replace("kcal", "").parse().unwrap();
-        total_cals += cals_per_portion * food.nbr_of_portions;
-        total_carbs += food.carbs * food.nbr_of_portions;
-        total_proteins += food.proteins * food.nbr_of_portions;
-        total_fats += food.fats * food.nbr_of_portions;
+        let cals_text = food.calories[1].clone();
+        let cals_value = &cals_text[0..cals_text.len() - 4];
+        cals += cals_value.parse::<f64>().unwrap() * food.nbr_of_portions;
+        carbs += food.carbs * food.nbr_of_portions;
+        proteins += food.proteins * food.nbr_of_portions;
+        fats += food.fats * food.nbr_of_portions;
     }
 
-    json::object! {
-        "cals" => (total_cals * 100.0).round() / 100.0,
-        "carbs" => (total_carbs * 100.0).round() / 100.0,
-        "proteins" => (total_proteins * 100.0).round() / 100.0,
-        "fats" => (total_fats * 100.0).round() / 100.0,
-    }
+    let result = json::object! {
+        cals: (cals * 100.0).round() / 100.0,
+        carbs: (carbs * 100.0).round() / 100.0,
+        proteins: (proteins * 100.0).round() / 100.0,
+        fats: (fats * 100.0).round() / 100.0,
+    };
+
+    return result;
 }
