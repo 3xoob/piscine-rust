@@ -42,17 +42,17 @@ impl From<u32> for RomanNumber {
         let mut result = Vec::new();
         let roman_values = [
             (1000, RomanDigit::M),
-            (900, RomanDigit::C), // CM
+            (900, RomanDigit::C),
             (500, RomanDigit::D),
-            (400, RomanDigit::C), // CD
+            (400, RomanDigit::C),
             (100, RomanDigit::C),
-            (90, RomanDigit::X), // XC
+            (90, RomanDigit::X),
             (50, RomanDigit::L),
-            (40, RomanDigit::X), // XL
+            (40, RomanDigit::X),
             (10, RomanDigit::X),
-            (9, RomanDigit::I), // IX
+            (9, RomanDigit::I),
             (5, RomanDigit::V),
-            (4, RomanDigit::I), // IV
+            (4, RomanDigit::I),
             (1, RomanDigit::I),
         ];
 
