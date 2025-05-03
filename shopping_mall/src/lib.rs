@@ -21,31 +21,31 @@ pub fn biggest_store(mall: &Mall) -> (String, Store) {
     (biggest_name, biggest_store)
 }
 
-pub fn highest_paid_employee(mall: &Mall) -> Vec<(String, Employee)> {
-    let mut highest_paid = Vec::new();
+pub fn highest_paid_employee<'a>(mall: &'a Mall) -> Vec<(&'a str, Employee)> {
     let mut max_salary = 0.0;
+    let mut result = Vec::new();
 
+    // Collect all employees into a vec to extend their lifetime
+    let mut all_employees = Vec::new();
+    
+    // First pass - find max salary
     for (_floor_name, floor) in &mall.floors {
         for (_store_name, store) in &floor.stores {
-            for (_employee_name, employee) in &store.employees {
-                if employee.salary > max_salary {
-                    max_salary = employee.salary;
-                }
+            for (name, employee) in &store.employees {
+                all_employees.push((name.as_str(), *employee));
+                max_salary = max_salary.max(employee.salary);
             }
         }
     }
 
-    for (_floor_name, floor) in &mall.floors {
-        for (_store_name, store) in &floor.stores {
-            for (employee_name, employee) in &store.employees {
-                if employee.salary == max_salary {
-                    highest_paid.push((employee_name.clone(), *employee));
-                }
-            }
+    // Filter for highest paid
+    for (name, employee) in all_employees {
+        if (employee.salary - max_salary).abs() < f64::EPSILON {
+            result.push((name, employee));
         }
     }
 
-    highest_paid
+    result
 }
 
 pub fn nbr_of_employees(mall: &Mall) -> usize {
