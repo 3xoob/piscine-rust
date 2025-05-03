@@ -61,7 +61,7 @@ pub fn nbr_of_employees(mall: &Mall) -> usize {
     counter
 }
 
-pub fn check_for_securities(mall: &mut Mall, guards: HashMap<String, Guard>) {
+pub fn check_for_securities(mall: &mut Mall, mut guards: HashMap<String, Guard>) {
     let mut mall_area = 0;
 
     for (_floor_name, floor) in &mall.floors {
@@ -70,16 +70,14 @@ pub fn check_for_securities(mall: &mut Mall, guards: HashMap<String, Guard>) {
         }
     }
 
-    let required_guards: usize = ((mall_area + 199) / 200).try_into().unwrap();
-    let current_guards = mall.guards.len();
+    let guards_needed = (mall_area + 199) / 200;
+    let mut current_guards = mall.guards.len() as u64;
 
-    if current_guards < required_guards {
-        for (name, guard) in guards {
-            if mall.guards.len() < required_guards {
-                mall.guards.insert(name, guard);
-            } else {
-                break;
-            }
+    // Add guards as needed
+    for (name, guard) in guards {
+        if current_guards < guards_needed {
+            mall.guards.insert(name, guard);
+            current_guards += 1;
         }
     }
 }
@@ -90,9 +88,9 @@ pub fn cut_or_raise(mall: &mut Mall) {
             for (_employee_name, employee) in &mut store.employees {
                 let work_hours = employee.working_hours.1 - employee.working_hours.0;
                 if work_hours >= 10 {
-                    employee.salary *= 1.1;
+                    employee.salary = (employee.salary * 1.1 * 10000.0).round() / 10000.0;
                 } else {
-                    employee.salary *= 0.9;
+                    employee.salary = (employee.salary * 0.9 * 10000.0).round() / 10000.0;
                 }
             }
         }
