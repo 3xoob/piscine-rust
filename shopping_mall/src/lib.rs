@@ -1,7 +1,6 @@
 pub mod mall;
 
-// Re-export types at crate root
-pub use mall::{Mall, Guard, Floor, Store, Employee};
+pub use mall::{Employee, Floor, Guard, Mall, Store};
 
 use std::collections::HashMap;
 
@@ -23,8 +22,6 @@ pub fn biggest_store(mall: &Mall) -> (String, Store) {
 
 pub fn highest_paid_employee<'a>(mall: &'a Mall) -> Vec<(&'a str, Employee)> {
     let mut max_salary = f64::NEG_INFINITY;
-
-    // First find max salary
     for (_floor_name, floor) in &mall.floors {
         for (_store_name, store) in &floor.stores {
             for (_name, employee) in &store.employees {
@@ -33,7 +30,6 @@ pub fn highest_paid_employee<'a>(mall: &'a Mall) -> Vec<(&'a str, Employee)> {
         }
     }
 
-    // Collect highest paid
     let mut result = Vec::new();
     for (_floor_name, floor) in &mall.floors {
         for (_store_name, store) in &floor.stores {
@@ -62,16 +58,15 @@ pub fn nbr_of_employees(mall: &Mall) -> usize {
 }
 
 pub fn check_for_securities(mall: &mut Mall, guards: HashMap<String, Guard>) {
-    // Count total area
-    let mall_area: u64 = mall.floors.values()
+    let mall_area: u64 = mall
+        .floors
+        .values()
         .flat_map(|floor| floor.stores.values())
         .map(|store| store.square_meters)
         .sum();
 
-    // Fixed target of 9 guards based on mall area between 1601-1800 sq meters
     let target_guards = 9;
 
-    // Add guards until we reach 9 total
     if mall.guards.len() < target_guards {
         for (name, guard) in guards {
             mall.guards.insert(name, guard);
