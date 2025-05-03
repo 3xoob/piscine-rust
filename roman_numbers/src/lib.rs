@@ -34,23 +34,25 @@ impl From<u32> for RomanDigit {
 impl From<u32> for RomanNumber {
     fn from(mut num: u32) -> Self {
         if num == 0 {
-            return RomanNumber { digits: vec![RomanDigit::Nulla] };
+            return RomanNumber {
+                digits: vec![RomanDigit::Nulla],
+            };
         }
 
         let mut result = Vec::new();
         let roman_values = [
             (1000, RomanDigit::M),
-            (900, RomanDigit::C),  // CM
+            (900, RomanDigit::C), // CM
             (500, RomanDigit::D),
-            (400, RomanDigit::C),  // CD
+            (400, RomanDigit::C), // CD
             (100, RomanDigit::C),
-            (90, RomanDigit::X),   // XC
+            (90, RomanDigit::X), // XC
             (50, RomanDigit::L),
-            (40, RomanDigit::X),   // XL
+            (40, RomanDigit::X), // XL
             (10, RomanDigit::X),
-            (9, RomanDigit::I),    // IX
+            (9, RomanDigit::I), // IX
             (5, RomanDigit::V),
-            (4, RomanDigit::I),    // IV
+            (4, RomanDigit::I), // IV
             (1, RomanDigit::I),
         ];
 
@@ -82,15 +84,5 @@ impl From<u32> for RomanNumber {
         }
 
         RomanNumber { digits: result }
-    }
-}
-
-fn main() {
-    // Test cases
-    let test_numbers = vec![32, 9, 45, 0];
-    
-    for &num in test_numbers.iter() {
-        let roman = RomanNumber::from(num);
-        println!("{} -> {:?}", num, roman.digits);
     }
 }
