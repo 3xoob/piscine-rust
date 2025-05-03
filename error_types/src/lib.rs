@@ -1,6 +1,11 @@
-use chrono::Utc;
+pub use chrono::{NaiveDate, Utc};
 
-#[derive(Debug, Eq, PartialEq)]
+pub const USERNAME_EMPTY: &str = "Username is empty";
+pub const PASSWORD_TOO_SHORT: &str = "Password should be at least 8 characters long";
+pub const PASSWORD_INVALID_CHARS: &str =
+    "Password should be a combination of ASCII numbers, letters and symbols";
+
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct FormError {
     pub form_values: (&'static str, String),
     pub date: String,
@@ -8,9 +13,13 @@ pub struct FormError {
 }
 
 impl FormError {
-    pub fn new(field_name: &'static str, field_value: String, err: &'static str) -> Self {
-        Self {
-            form_values: (field_name, field_value),
+    pub fn new<T: Into<String>>(
+        field_name: &'static str,
+        field_value: T,
+        err: &'static str,
+    ) -> FormError {
+        FormError {
+            form_values: (field_name, field_value.into()),
             date: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
             err,
         }
@@ -24,45 +33,32 @@ pub struct Form {
 }
 
 impl Form {
+    pub fn new(name: String, password: String) -> Form {
+        Form { name, password }
+    }
+
     pub fn validate(&self) -> Result<(), FormError> {
-        // Check for empty username
-        if self.name == "" {
-            return Err(FormError::new(
-                "name",
-                self.name.clone(),
-                "Username is empty",
-            ));
+        if self.name.is_empty() {
+            return Err(FormError::new("name", self.name.clone(), USERNAME_EMPTY));
         }
 
-        // Check password length
-        if self.password.chars().count() < 8 {
+        if self.password.len() < 8 {
             return Err(FormError::new(
                 "password",
                 self.password.clone(),
-                "Password should be at least 8 characters long",
+                PASSWORD_TOO_SHORT,
             ));
         }
 
-        // Check password composition
-        let mut is_letter = false;
-        let mut is_digit = false;
-        let mut is_symbol = false;
+        let has_letters = self.password.chars().any(|c| c.is_alphabetic());
+        let has_numbers = self.password.chars().any(|c| c.is_numeric());
+        let has_symbols = self.password.chars().any(|c| !c.is_alphanumeric());
 
-        for c in self.password.chars() {
-            if c.is_alphabetic() {
-                is_letter = true;
-            } else if c.is_digit(10) {
-                is_digit = true;
-            } else if !c.is_whitespace() {
-                is_symbol = true;
-            }
-        }
-
-        if !is_digit || !is_letter || !is_symbol {
+        if !(has_letters && has_numbers && has_symbols) {
             return Err(FormError::new(
                 "password",
                 self.password.clone(),
-                "Password should be a combination of ASCII numbers, letters and symbols",
+                PASSWORD_INVALID_CHARS,
             ));
         }
 
