@@ -1,6 +1,6 @@
 [package]
-name = "roman_numbers_iter"
+name = "roman_numbers"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
