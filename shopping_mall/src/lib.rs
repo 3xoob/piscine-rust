@@ -3,8 +3,7 @@ use std::collections::HashMap;
 pub mod mall;
 
 pub fn biggest_store(mall: mall::Mall) -> mall::Store {
-    let mut biggest = mall::Store::new(HashMap::new(), 0);
-
+    let mut biggest = mall::Store::new(HashMap::<String, mall::Employee>::new(), 0);
     for (_name, floor) in mall.floors {
         for (_store_name, store) in floor.stores {
             if store.square_meters > biggest.square_meters {
