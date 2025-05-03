@@ -1,10 +1,13 @@
 pub mod mall;
 
+// Re-export types at crate root
+pub use mall::{Mall, Guard, Floor, Store, Employee};
+
 use std::collections::HashMap;
 
-pub fn biggest_store(mall: &mall::Mall) -> (String, mall::Store) {
+pub fn biggest_store(mall: &Mall) -> (String, Store) {
     let mut biggest_name = String::new();
-    let mut biggest_store = mall::Store::new(HashMap::<String, mall::Employee>::new(), 0);
+    let mut biggest_store = Store::new(HashMap::<String, Employee>::new(), 0);
 
     for (_floor_name, floor) in &mall.floors {
         for (store_name, store) in &floor.stores {
@@ -18,7 +21,7 @@ pub fn biggest_store(mall: &mall::Mall) -> (String, mall::Store) {
     (biggest_name, biggest_store)
 }
 
-pub fn highest_paid_employee(mall: &mall::Mall) -> Vec<(String, mall::Employee)> {
+pub fn highest_paid_employee(mall: &Mall) -> Vec<(String, Employee)> {
     let mut highest_paid = Vec::new();
     let mut max_salary = 0.0;
 
@@ -45,7 +48,7 @@ pub fn highest_paid_employee(mall: &mall::Mall) -> Vec<(String, mall::Employee)>
     highest_paid
 }
 
-pub fn nbr_of_employees(mall: &mall::Mall) -> usize {
+pub fn nbr_of_employees(mall: &Mall) -> usize {
     let mut counter = 0;
 
     for (_floor_name, floor) in &mall.floors {
@@ -58,7 +61,7 @@ pub fn nbr_of_employees(mall: &mall::Mall) -> usize {
     counter
 }
 
-pub fn check_for_securities(mall: &mut mall::Mall, guards: HashMap<String, mall::Guard>) {
+pub fn check_for_securities(mall: &mut Mall, guards: HashMap<String, Guard>) {
     let mut mall_area = 0;
 
     for (_floor_name, floor) in &mall.floors {
@@ -81,7 +84,7 @@ pub fn check_for_securities(mall: &mut mall::Mall, guards: HashMap<String, mall:
     }
 }
 
-pub fn cut_or_raise(mall: &mut mall::Mall) {
+pub fn cut_or_raise(mall: &mut Mall) {
     for (_floor_name, floor) in &mut mall.floors {
         for (_store_name, store) in &mut floor.stores {
             for (_employee_name, employee) in &mut store.employees {
