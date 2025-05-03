@@ -1,88 +1,84 @@
+pub use crate::mall::floor;
+pub use crate::mall::floor::store;
 pub mod mall;
-pub use mall::{Employee, Floor, Guard, Mall, Store};
 
-pub fn biggest_store(mall: Mall) -> Store {
-    mall.biggest_store().unwrap().clone()
-}
+pub fn biggest_store(mall: mall::Mall) -> store::Store {
+    let mut biggest: store::Store = store::Store {
+        name: "IHateRust".to_string(),
+        square_meters: 0,
+        employees: vec![],
+    };
 
-pub fn highest_paid_employee(mall: Mall) -> Vec<Employee> {
-    mall.highest_paid_employee().into_iter().cloned().collect()
-}
-
-pub fn nbr_of_employees(mall: Mall) -> usize {
-    mall.nbr_of_employees()
-}
-
-pub fn check_for_securities(mall: &mut Mall, new_guards: Vec<Guard>) {
-    mall.check_for_securities(new_guards)
-}
-
-pub fn cut_or_raise(mall: &mut Mall) {
-    mall.cut_or_raise()
-}
-
-impl Mall {
-    pub fn biggest_store(&self) -> Option<&Store> {
-        self.floors
-            .values()
-            .flat_map(|floor| floor.stores.values())
-            .max_by_key(|store| store.square_meters)
+    for floor in mall.floors {
+        for store in floor.stores {
+            if store.square_meters > biggest.square_meters {
+                biggest = store;
+            }
+        }
     }
 
-    pub fn highest_paid_employee(&self) -> Vec<&Employee> {
-        let mut highest_salary = 0.0;
-        let mut highest_paid_employees = Vec::new();
+    return biggest;
+}
 
-        for floor in self.floors.values() {
-            for store in floor.stores.values() {
-                for employee in store.employees.values() {
-                    if employee.salary > highest_salary {
-                        highest_salary = employee.salary;
-                        highest_paid_employees.clear();
-                        highest_paid_employees.push(employee);
-                    } else if employee.salary == highest_salary {
-                        highest_paid_employees.push(employee);
-                    }
+pub fn highest_paid_employee(mall: mall::Mall) -> Vec<store::employee::Employee> {
+    let mut highest_paid: Vec<store::employee::Employee> = Vec::new();
+
+    for floor in mall.floors {
+        for store in floor.stores {
+            for employee in store.employees {
+                if highest_paid.len() == 0 || employee.salary == highest_paid[0].salary {
+                    highest_paid.push(employee);
+                } else if employee.salary > highest_paid[0].salary {
+                    highest_paid[0] = employee;
                 }
             }
         }
-
-        highest_paid_employees
     }
+    return highest_paid;
+}
 
-    pub fn nbr_of_employees(&self) -> usize {
-        let mut count = self.guards.len();
+pub fn nbr_of_employees(mall: mall::Mall) -> usize {
+    let mut counter: usize = 0;
 
-        for floor in self.floors.values() {
-            for store in floor.stores.values() {
-                count += store.employees.len();
-            }
-        }
-
-        count
-    }
-
-    pub fn check_for_securities(&mut self, new_guards: Vec<Guard>) {
-        let total_square_meters: u64 = self.floors.values().map(|floor| floor.size_limit).sum();
-        let required_guards = (total_square_meters / 200) as usize;
-
-        if self.guards.len() < required_guards {
-            let additional_guards = required_guards - self.guards.len();
-            for guard in new_guards.into_iter().take(additional_guards) {
-                self.guards.insert(format!("Guard_{}", self.guards.len()), guard);
-            }
+    for floor in mall.floors {
+        for store in floor.stores {
+            counter += store.employees.len();
         }
     }
 
-    pub fn cut_or_raise(&mut self) {
-        for floor in self.floors.values_mut() {
-            for store in floor.stores.values_mut() {
-                for employee in store.employees.values_mut() {
-                    if employee.working_hours.1 - employee.working_hours.0 > 10 {
-                        employee.raise(employee.salary * 0.10);
-                    } else {
-                        employee.cut(employee.salary * 0.10);
-                    }
+    counter += mall.guards.len();
+
+    return counter;
+}
+
+pub fn check_for_securities(mall: &mut mall::Mall, guards: Vec<mall::guard::Guard>) {
+    let mut mall_area: u64 = 0;
+
+    for floor in &mall.floors {
+        for store in &floor.stores {
+            mall_area += store.square_meters;
+        }
+    }
+
+    let mut counter: u64 = 0;
+    for guard in guards {
+        if counter == 0 || mall_area / counter > 200 {
+            mall.guards.push(guard);
+            counter += 1;
+        } else {
+            break;
+        }
+    }
+}
+
+pub fn cut_or_raise(mall: &mut mall::Mall) {
+    for floor in &mut mall.floors {
+        for store in &mut floor.stores {
+            for employee in &mut store.employees {
+                if employee.working_hours.1 - employee.working_hours.0 > 10 {
+                    employee.salary += employee.salary * 0.1;
+                } else {
+                    employee.salary -= employee.salary * 0.1;
                 }
             }
         }
