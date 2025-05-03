@@ -2,32 +2,41 @@ pub mod mall;
 
 use std::collections::HashMap;
 
-pub fn biggest_store(mall: mall::Mall) -> mall::Store {
-    let mut biggest = mall::Store::new(HashMap::<String, mall::Employee>::new(), 0);
+pub fn biggest_store(mall: &mall::Mall) -> (String, mall::Store) {
+    let mut biggest_name = String::new();
+    let mut biggest_store = mall::Store::new(HashMap::new(), 0);
 
-    for (_name, floor) in mall.floors {
-        for (_store_name, store) in floor.stores {
-            if store.square_meters > biggest.square_meters {
-                biggest = store;
+    for (_floor_name, floor) in &mall.floors {
+        for (store_name, store) in &floor.stores {
+            if store.square_meters > biggest_store.square_meters {
+                biggest_store = store.clone();
+                biggest_name = store_name.clone();
             }
         }
     }
 
-    biggest
+    (biggest_name, biggest_store)
 }
 
-pub fn highest_paid_employee(mall: mall::Mall) -> Vec<mall::Employee> {
+pub fn highest_paid_employee(mall: &mall::Mall) -> Vec<(String, mall::Employee)> {
     let mut highest_paid = Vec::new();
+    let mut max_salary = 0.0;
 
-    for (_floor_name, floor) in mall.floors {
-        for (_store_name, store) in floor.stores {
-            for (_employee_name, employee) in store.employees {
-                if highest_paid.is_empty() {
-                    highest_paid.push(employee);
-                } else if employee.salary == highest_paid[0].salary {
-                    highest_paid.push(employee);
-                } else if employee.salary > highest_paid[0].salary {
-                    highest_paid[0] = employee;
+    for (_floor_name, floor) in &mall.floors {
+        for (_store_name, store) in &floor.stores {
+            for (_employee_name, employee) in &store.employees {
+                if employee.salary > max_salary {
+                    max_salary = employee.salary;
+                }
+            }
+        }
+    }
+
+    for (_floor_name, floor) in &mall.floors {
+        for (_store_name, store) in &floor.stores {
+            for (employee_name, employee) in &store.employees {
+                if employee.salary == max_salary {
+                    highest_paid.push((employee_name.clone(), *employee));
                 }
             }
         }
@@ -36,11 +45,11 @@ pub fn highest_paid_employee(mall: mall::Mall) -> Vec<mall::Employee> {
     highest_paid
 }
 
-pub fn nbr_of_employees(mall: mall::Mall) -> usize {
+pub fn nbr_of_employees(mall: &mall::Mall) -> usize {
     let mut counter = 0;
 
-    for (_floor_name, floor) in mall.floors {
-        for (_store_name, store) in floor.stores {
+    for (_floor_name, floor) in &mall.floors {
+        for (_store_name, store) in &floor.stores {
             counter += store.employees.len();
         }
     }
@@ -49,7 +58,7 @@ pub fn nbr_of_employees(mall: mall::Mall) -> usize {
     counter
 }
 
-pub fn check_for_securities(mall: &mut mall::Mall, guards: Vec<mall::Guard>) {
+pub fn check_for_securities(mall: &mut mall::Mall, guards: HashMap<String, mall::Guard>) {
     let mut mall_area = 0;
 
     for (_floor_name, floor) in &mall.floors {
@@ -58,13 +67,16 @@ pub fn check_for_securities(mall: &mut mall::Mall, guards: Vec<mall::Guard>) {
         }
     }
 
-    let mut counter = 0;
-    for guard in guards {
-        if counter == 0 || mall_area / (counter + 1) > 200 {
-            mall.guards.insert(format!("Guard #{}", counter + 1), guard);
-            counter += 1;
-        } else {
-            break;
+    let required_guards = (mall_area + 199) / 200;
+    let current_guards = mall.guards.len();
+
+    if current_guards < required_guards {
+        for (name, guard) in guards {
+            if mall.guards.len() < required_guards {
+                mall.guards.insert(name, guard);
+            } else {
+                break;
+            }
         }
     }
 }
@@ -73,11 +85,11 @@ pub fn cut_or_raise(mall: &mut mall::Mall) {
     for (_floor_name, floor) in &mut mall.floors {
         for (_store_name, store) in &mut floor.stores {
             for (_employee_name, employee) in &mut store.employees {
-                let hours = employee.working_hours.1 - employee.working_hours.0;
-                if hours > 10 {
-                    employee.salary += employee.salary * 0.1;
+                let work_hours = employee.working_hours.1 - employee.working_hours.0;
+                if work_hours >= 10 {
+                    employee.salary *= 1.1;
                 } else {
-                    employee.salary -= employee.salary * 0.1;
+                    employee.salary *= 0.9;
                 }
             }
         }
